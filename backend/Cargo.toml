@@ -1,0 +1,41 @@
+[package]
+name = "territorio-api"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+
+[dependencies]
+anyhow = "1"
+argon2 = "0.5"
+axum = { version = "0.8", features = ["macros"] }
+base64 = "0.22"
+candle-core = "0.9"
+candle-nn = "0.9"
+candle-transformers = "0.9"
+futures-util = "0.3"
+geo = { version = "0.33", features = ["use-serde"] }
+hex = "0.4"
+hmac = "0.12"
+lettre = { version = "0.11", default-features = false, features = ["builder", "smtp-transport", "tokio1-rustls-tls", "ring", "webpki-roots"] }
+mongodb = "3.3"
+openidconnect = { version = "4", default-features = false, features = ["reqwest", "rustls-tls"] }
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+sentencepiece-rs = "0.2"
+subtle = "2"
+tokenizers = { version = "0.22", default-features = false, features = ["onig"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["fs", "trace", "limit"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "cookies", "rustls-tls"] }
+
+[profile.release]
+lto = "thin"
+strip = true

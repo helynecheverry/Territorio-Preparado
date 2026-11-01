@@ -1,0 +1,80 @@
+name: territorio
+services:
+  mongo:
+    image: mongo:8.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${TP_MONGO_ROOT_PASSWORD:?Generate root password}
+      TP_DB_PASSWORD: ${TP_DB_PASSWORD:?Generate application password (hex)}
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/10-app.js:ro
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, 'mongosh --quiet --username "$$MONGO_INITDB_ROOT_USERNAME" --password "$$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin --eval "db.adminCommand({ping:1}).ok"']
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    mem_limit: 2g
+  api:
+    build:
+      context: ../..
+      dockerfile: backend/deploy/Dockerfile
+    image: territorio-api:local
+    command: [api]
+    restart: unless-stopped
+    init: true
+    env_file: ${TP_ENV_FILE:-../.env.production}
+    environment:
+      TP_ENV: production
+      TP_MONGO_URI: mongodb://territorio:${TP_DB_PASSWORD:?required}@mongo:27017/territorio?authSource=territorio
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    depends_on:
+      mongo: {condition: service_healthy}
+    networks: [data, edge]
+    mem_limit: 768m
+  worker:
+    image: territorio-api:local
+    command: [worker]
+    restart: unless-stopped
+    init: true
+    env_file: ${TP_ENV_FILE:-../.env.production}
+    environment:
+      TP_ENV: production
+      TP_MONGO_URI: mongodb://territorio:${TP_DB_PASSWORD:?required}@mongo:27017/territorio?authSource=territorio
+    read_only: true
+    tmpfs: [/tmp:size=64m,mode=1777]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ../../models/sos:/models/sos:ro
+      - ../../models/translation-es-en:/models/translation-es-en:ro
+    depends_on:
+      mongo: {condition: service_healthy}
+    networks: [data]
+    mem_limit: 3g
+    cpus: 2
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      TP_DOMAIN: ${TP_DOMAIN:?Set public hostname}
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [api]
+    networks: [edge]
+networks:
+  data:
+    internal: true
+  edge: {}
+volumes:
+  mongo-data: {}
+  caddy-data: {}
+  caddy-config: {}

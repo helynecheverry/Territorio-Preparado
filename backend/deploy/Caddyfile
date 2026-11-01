@@ -1,0 +1,7 @@
+{$TP_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy api:4180 {
+        health_uri /api/health
+        health_interval 15s
+    }
+}
