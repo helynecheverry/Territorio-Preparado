@@ -1,107 +1,156 @@
 # Territorio Preparado
 
-Prototipo territorial para preparar espacios y coordinar ayudas ante emergencias en Cali.
+**Tecnología para conocer el territorio, preparar espacios y coordinar ayudas ante emergencias.**
 
-Equipo: William Ortiz, Herlin Echeverry, Pablo Arango y Bryan Martinez Villamarin.
+Proyecto colaborativo con enfoque inicial en Cali, Colombia. Integra exploración territorial, simulación 3D, planificación de albergues, gestión de reportes e inteligencia artificial para apoyar la revisión de mensajes de emergencia.
 
-## Aplicación con backend Rust y MongoDB
+[Ver demostración del equipo](https://bryanmavi.github.io/Territorio-Preparado/) · [Backend y API](backend/README.md) · [Documento del proyecto](Territorio_Preparado_Actualizado.md)
 
-La aplicación operativa nueva se ejecuta desde `backend` con `./scripts/run-local.sh` y se abre en **http://127.0.0.1:4180/app/**. Incluye acceso con segundo factor por correo, Google configurable, roles, reportes, albergues, administración y cola durable de IA. BERT y traducción Marian usan inferencia Rust local; MongoDB conserva usuarios, sesiones, reportes y resultados. [Instalación, seguridad, API y despliegue](backend/README.md).
+![Portada de Territorio Preparado y acceso a sus módulos](docs/images/inicio.png)
 
-El [planificador de albergues](backend/PLANNING.md) está en `/app/planner.html`: calcula sobre huellas del inventario, permite exclusiones, compara recursos y conserva propuestas que se abren en el simulador 3D. Es cálculo geométrico sujeto a revisión; la segmentación visual SAM permanece pendiente.
+## Mi participación: liderazgo y desarrollo
 
-El planificador incorpora ahora diseño 3D con interiores y servicios ilustrativos, exportaciones PNG/GLB y revisiones persistentes. Hay mapa satelital de referencia en el explorador y en el planificador; [fuentes, uso y alcance](backend/DESIGN_AND_MAPS.md).
+Como **CEO del equipo**, mi participación combina la dirección del proyecto con el desarrollo técnico. También represento al equipo en la **misión empresarial en Barcelona del 3 de noviembre de 2026**, como parte de su proyección empresarial.
 
-El prototipo y los servidores Python descritos abajo se conservan como versiones experimentales. La evaluación satelital xView2 aún pertenece a esa implementación anterior. No ejecutar ambos servidores en el mismo puerto.
+Mis aportes abarcan el **backend, el frontend y la integración de MongoDB y modelos de inteligencia artificial**. Esta versión de portafolio en [helynecheverry/Territorio-Preparado](https://github.com/helynecheverry/Territorio-Preparado) presenta ese trabajo dentro del proyecto colectivo y conserva los créditos del equipo.
 
-## Encender el equipo y volver a ingresar
+| Área | Mi aporte | Código y documentación relacionados |
+| --- | --- | --- |
+| Dirección y representación | Liderazgo del equipo como CEO y representación en la misión empresarial en Barcelona. | [Propuesta del proyecto](Territorio_Preparado_Actualizado.md) |
+| Backend | Desarrollo de la API en Rust y de los servicios para la operación de la aplicación. | [Backend](backend/), [configuración](backend/src/config.rs) y [dominio](backend/src/domain/) |
+| Frontend | Desarrollo de interfaces y conexión de los módulos con los servicios del backend. | [Aplicación web](backend/web/) y [frontend del proyecto](frontend/) |
+| MongoDB | Integración de la persistencia para usuarios, sesiones, reportes, trabajos de IA y propuestas de planeación. | [Conexión e índices](backend/src/db.rs) |
+| Inteligencia artificial | Integración de modelos y del flujo de procesamiento de mensajes con persistencia de trabajos y resultados. | [Módulos de IA](backend/src/ai/) y [servicio experimental](servidor/ia/) |
 
-En este equipo, Territorio Preparado arranca como servicio al iniciar sesión en Linux. Los accesos del escritorio permiten abrir la aplicación, consultar la cuenta preparada y obtener el segundo factor vigente. La cuenta local es `ijoan@territorio.local`; la contraseña permanece en el archivo privado de acceso, fuera de Git.
+La contribución en IA corresponde a **integración e inferencia con modelos existentes**. El repositorio no documenta entrenamiento de un modelo fundacional propio. Las funcionalidades generales son resultado del trabajo del equipo; esta tabla describe mi participación, sin atribuirme la autoría exclusiva del proyecto.
 
-[Guía de inicio y acceso en PDF](docs/GUIA_INICIO_Y_ACCESO.pdf) · [Versión HTML para consultar sin conexión](docs/GUIA_INICIO_Y_ACCESO.html). Desde la raíz también se puede usar `./territorio abrir`.
+## La aplicación y sus módulos
 
-## Documento actualizado
+| Módulo | Función |
+| --- | --- |
+| Explorador territorial | Consulta espacios públicos, escenarios deportivos, barrios y capas de referencia en mapas y vista satelital. |
+| Demostración de refugio | Presenta una visualización conceptual para explorar soluciones de alojamiento. |
+| Preparar intervención | Permite explorar propuestas de intervención sobre espacios seleccionados. |
+| Análisis preventivo | Presenta información para ejercicios de preparación territorial. |
+| El kit | Muestra elementos ilustrativos de dotación para refugios. |
+| Simulación | Permite explorar escenarios y propuestas en un entorno 3D. |
+| Centro de operaciones | Reúne demostraciones de consolidación de reportes y la propuesta de operación con IA local. |
+| Centro de coordinación | Gestiona reportes, análisis de mensajes, albergues y administración desde la aplicación Rust. |
+| Planificador de albergues | Calcula propuestas sobre huellas del inventario y compara capacidad, recursos y exclusiones. |
+| IA para desastres | Ofrece interfaces para mensajes SOS y evaluación satelital experimental; requiere los servicios y modelos correspondientes. |
 
-- [Documento PDF](Territorio_Preparado_Actualizado.pdf)
-- [Documento editable Word](Territorio_Preparado_Actualizado.docx)
-- [Documento fuente](Territorio_Preparado_Actualizado.md)
+### Explorador territorial y mapa satelital
 
-## Ejecutar el prototipo
+Consulta del inventario territorial con filtros y capas de referencia.
 
-Desde la raíz del repositorio, con Python 3 instalado:
+![Explorador de Cali con mapa satelital, inventario y filtros](docs/images/explorador-satelital.png)
+
+### Centro de coordinación
+
+Reportes del territorio, análisis de mensajes, gestión de albergues y administración. La captura muestra datos de prueba.
+
+<img src="docs/images/centro-coordinacion.png" alt="Centro de coordinación con reportes, análisis de mensajes, albergues y administración" width="640">
+
+### Planificación de albergues
+
+Selección de espacios, cálculo de capacidad y comparación de recursos para una propuesta sujeta a revisión.
+
+<img src="docs/images/planificador-albergues.png" alt="Planificador de albergues con distribución, capacidad y recursos del escenario de prueba" width="640">
+
+### Diseño 3D
+
+Visualización conceptual de la distribución sobre la huella seleccionada, con opciones de exportación PNG y GLB.
+
+![Diseño conceptual 3D de un albergue en el planificador](docs/images/planificador-3d.png)
+
+### Inteligencia artificial para desastres
+
+Interfaz de mensajes SOS y evaluación satelital del prototipo experimental. Esta captura corresponde a la interfaz estática: no muestra una inferencia ejecutada.
+
+![Visor de IA para mensajes SOS y daños satelitales](docs/images/ia-desastres.png)
+
+Las capturas corresponden a distintas vistas y etapas del prototipo. Los resultados de planeación son ejercicios ilustrativos; las imágenes satelitales son referencias de contexto.
+
+## Arquitectura y tecnologías
+
+```mermaid
+flowchart LR
+    U[Usuario] --> F[Frontend web]
+    F --> A[API Rust · Axum]
+    A --> D[(MongoDB)]
+    A --> Q[Cola durable de trabajos de IA]
+    Q --> I[Inferencia local · BERT y Marian]
+    I --> D
+    F --> P[Planificación y visualización 3D]
+```
+
+| Componente | Tecnologías y alcance |
+| --- | --- |
+| Aplicación operativa | Rust, Axum y Tokio; autenticación, roles, reportes, albergues y administración. |
+| Persistencia | MongoDB para la aplicación Rust; SQLite en los prototipos Python. |
+| IA local en Rust | Candle, clasificación BERT SOS y traducción Marian español–inglés. |
+| Interfaz | JavaScript, HTML/CSS, aplicación React compilada y visualización 3D. |
+| Cartografía | Leaflet, OpenStreetMap y capas satelitales de referencia. |
+| Servicios experimentales | Python/FastAPI y adaptador xView2 para imágenes antes/después. |
+| Despliegue preparado | Docker Compose y Caddy; configuración adicional del servicio IA en `deploy/ia/`. |
+
+**Estado de la IA:** BERT devuelve puntuaciones cuyas etiquetas semánticas requieren verificación. xView2 pertenece al servicio experimental Python, requiere provisionar su runtime y no está migrado al backend Rust. SAM permanece pendiente. Consulta [el estado y los requisitos de los modelos](servidor/ia/README.md).
+
+## Ejecutar localmente
+
+### Aplicación con backend Rust y MongoDB
+
+Requiere Rust 1.88 o superior, compilador C y MongoDB activo. Los modelos necesitan sus pesos locales; no están incluidos en Git.
+
+```bash
+cd backend
+./scripts/run-local.sh
+```
+
+Abrir **http://127.0.0.1:4180/app/**. El planificador está en **http://127.0.0.1:4180/app/planner.html**.
+
+La [guía del backend](backend/README.md#arranque-de-desarrollo) explica la configuración, el registro, el segundo factor por correo y la habilitación del primer administrador.
+
+### Interfaz estática y simulador
+
+Desde la raíz, con Python 3:
 
 ```bash
 python3 -m http.server 4173 --bind 127.0.0.1 --directory frontend/dist
 ```
 
-Abrir http://127.0.0.1:4173/ y usar **06 Simulación** para acceder al laboratorio.
+Abrir **http://127.0.0.1:4173/** y seleccionar **06 Simulación** para acceder al laboratorio.
 
-La entrega contiene la app compilada; no requiere instalar Node para ejecutarla. Los fuentes originales y la configuración de compilación React no están disponibles en esta copia. Los scripts de mantenimiento se conservan en `frontend/scripts` y el laboratorio en `frontend/simulation-source`.
+La entrega incluye la aplicación React compilada; sus fuentes originales y su configuración de compilación no están disponibles en esta copia. Se conservan los scripts de mantenimiento y los fuentes del simulador. El frontend operativo de Rust está en `backend/web/`.
 
-Los escenarios son ejercicios de preparación; sus límites y fuentes aparecen en la interfaz y en `frontend/dist/simulation-method.md`.
+### Servicios Python experimentales
 
-## GitHub Pages
+- [Servidor de demostración](servidor/README.md): consolidación de datos sintéticos y conector opcional a un modelo local.
+- [Servicio IA](servidor/ia/README.md): instalación de modelos, inferencias y pruebas.
 
-Dirección pública: https://bryanmavi.github.io/Territorio-Preparado/
+Estos servicios y el backend Rust utilizan por defecto el puerto 4180; ejecutar solo uno en ese puerto.
 
-Un administrador debe seleccionar **Settings → Pages → Build and deployment → Source → GitHub Actions**. El workflow `.github/workflows/pages.yml` publica `frontend/dist` cada vez que se actualiza `main`. El script `frontend/scripts/prepare_pages.py` adapta rutas de datos, imágenes, módulos y simulación al prefijo del repositorio, conservando la ejecución local original.
+## Publicación y procedencia
 
-## Simulación v3
+La [demostración enlazada](https://bryanmavi.github.io/Territorio-Preparado/) corresponde al repositorio del equipo. GitHub Pages publica la interfaz estática; las inferencias y MongoDB requieren un servidor independiente.
 
-Actualizada el 8 de octubre de 2026 con el paquete suministrado `simulacion_ciudad_cali_v3.zip`. Incluye las pestañas Simulación y Albergues y nuevos controles de escenarios. El original y sus fuentes se conservan en `frontend/simulation-source`.
+Este repositorio incluye un [workflow de Pages](.github/workflows/pages.yml) que prepara `frontend/dist` para el nombre del repositorio y lo publica al actualizar `main`. La configuración de despliegue debe habilitarse en el repositorio de destino.
 
-La raíz incluye un acceso a `frontend/dist/` para funcionar también si Pages publica la rama `main` directamente. Las rutas de la aplicación son relativas y los módulos diferidos comparten la misma instancia de React; no añadir parámetros de versión al módulo principal en `index.html`.
 
-<<<<<<< HEAD
-## IA para desastres · BERT SOS y xView2
+## Documentación
 
-La aplicación incorpora **07 Centro de operaciones** y el [visor de IA para desastres](https://bryanmavi.github.io/Territorio-Preparado/disaster-ai.html).
+- [Backend: instalación, API y despliegue](backend/README.md).
+- [Planificación de albergues: método y supuestos](backend/PLANNING.md).
+- [Diseño 3D, mapas y alcance](backend/DESIGN_AND_MAPS.md).
+- [Servidor propio, IA y vigilancia](docs/SERVIDOR_PROPIO_IA_Y_VIGILANCIA.md).
+- [Fuentes de datos](docs/DATASETS.md) y [fuentes del simulador](frontend/simulation-source/README.md).
+- Documento del proyecto: [Markdown](Territorio_Preparado_Actualizado.md), [PDF](Territorio_Preparado_Actualizado.pdf) y [Word](Territorio_Preparado_Actualizado.docx).
+- [Presentación del proyecto](Territorio_Preparado_Pitch.pdf).
 
-- **BERT SOS:** clasificación multietiqueta de mensajes, traducción local español–inglés y persistencia en SQLite. Las salidas requieren revisión humana; no se ha verificado la correspondencia semántica de las 36 etiquetas.
-- **xView2:** adaptador de los pesos oficiales para imágenes antes/después y exportación GeoJSON. Requiere provisionar su runtime; las pruebas técnicas no constituyen validación de precisión.
-- **GitHub Pages:** publica la interfaz y el demostrador de conteo sintético. No ejecuta Python ni aloja inferencias; la interfaz indica cuando el servidor de IA no está disponible.
+## Equipo y alcance
 
-Para ejecutar las inferencias, sigue [instalación, modelos y pruebas](servidor/ia/README.md). Con el entorno y los pesos instalados:
+Proyecto de origen: [bryanmavi/Territorio-Preparado](https://github.com/bryanmavi/Territorio-Preparado).
 
-```bash
-servidor/ia/.venv/bin/python -m uvicorn servidor.ia.app:app --host 127.0.0.1 --port 4180
-```
+Equipo acreditado en el proyecto: **William Ortiz, Herlin Echeverry, Pablo Arango y Bryan Martinez Villamarin**. La sección de participación personal complementa estos créditos.
 
-Abre http://127.0.0.1:4180/disaster-ai.html. El puerto 4173 sirve únicamente la aplicación estática. Los pesos, entornos virtuales, bases de datos y archivos de instrucciones para asistentes no forman parte de esta publicación.
-
-[Arquitectura del servidor propio](docs/SERVIDOR_PROPIO_IA_Y_VIGILANCIA.md) · [registro técnico anterior de modelos y pruebas](docs/evidence/ia-2026-10-16.json).
-=======
-## Centro de operaciones: servidor propio e IA local
-
-Nueva sección **07 Centro de operaciones**: arquitectura privada, consolidación de reportes sintéticos, vigilancia oficial y expansión territorial. [Propuesta técnica y comercial](docs/SERVIDOR_PROPIO_IA_Y_VIGILANCIA.md).
-
-```bash
-python3 servidor/server.py --port 4180
-```
-
-Abrir http://127.0.0.1:4180/. La consolidación local registra agregados sintéticos en SQLite. El modelo local es un conector opcional configurable; el despliegue privado 24/7 corresponde a la siguiente etapa. El caso Panamá es una captura oficial con fuente y fecha de corte.
-
-## Conocimiento territorial y preparación 3D
-
-Abrir `Obsidian Vault` como vault y comenzar por [Inicio](Obsidian%20Vault/00%20Inicio/Inicio.md). Documentación organizada por SICC, actores, territorio, datos, simulación y operación; notas originales y adjuntos conservados.
-
-[Auditoría de simulación](docs/AUDIT_SIMULACION_3D.md), [supuestos](docs/ASSUMPTIONS.md) y [modelos](docs/MODELS.md). El [pipeline Rust inicial](pipeline/README.md) verifica hashes y exporta límites reales por zona. El visor existente ya integra zonas y teselas catastrales locales bajo demanda; ver [fuentes de integración](frontend/simulation-source/README.md). La ciudad nueva con OSM/GLO-30 y motores WASM sigue pendiente; el índice de límites no equivale a ese pipeline terminado.
-
-## IA para desastres: BERT SOS y xView2
-
-Backend FastAPI, mensajes persistentes y visor bilingüe en `disaster-ai.html`. [Instalación, pruebas y estado real de los modelos](servidor/ia/README.md). La inferencia xView2 requiere provisionar su runtime; las etiquetas semánticas BERT requieren verificación antes de priorizar automáticamente.
-
-## Si el simulador indica «Error creating WebGL context»
-
-Ejecutar `python3 scripts/abrir_simulador.py` o abrir `Simulador compatible.desktop`. Inicia Chrome con perfil separado y WebGL2 por software (SwiftShader), calidad ligera y servidor local. No cambia las preferencias del navegador habitual. Validado con escena y edificios visibles; ver `docs/evidence/simulation-software-renderer.json`.
-
-## Documento integral del desarrollo
-
-- [Informe PDF](docs/desarrollo/Territorio_Preparado_Desarrollo_Integral.pdf)
-- [Word editable](docs/desarrollo/Territorio_Preparado_Desarrollo_Integral.docx)
-- [Modelo financiero con fórmulas](docs/desarrollo/Modelo_Financiero_Territorio_Preparado.xlsx)
-
-Sigue la estructura del ejemplo de Algoritmia, con encuesta de 67 respuestas, ocho capítulos, hardware, servidor propio, arquitectura IA, operación, marco legal y evaluación económica/financiera. Los presupuestos son supuestos de planeación, no cotizaciones aceptadas.
-
-Reproducción documental: instalar `scripts/requirements-documento.txt` en un entorno aislado; ejecutar `scripts/generar_documento_desarrollo.py`, actualizar índices/PDF con el Python del sistema y `scripts/actualizar_indices_documento.py docs/desarrollo/Territorio_Preparado_Desarrollo_Integral.docx` (requiere LibreOffice y python3-uno), y comprobar con `scripts/verificar_documento_desarrollo.py`. El Excel se genera con `scripts/generar_modelo_financiero.py` y debe recalcularse en Calc/Excel antes de validar sus valores almacenados.
->>>>>>> 167ba5d (feat(backend): agregar estructura base y conexion a mongo para modulos de IA)
+Territorio Preparado es un prototipo de preparación y apoyo a la coordinación. Incluye datos sintéticos y funciones experimentales; los resultados de IA y las propuestas de albergues requieren revisión humana. No constituye una validación operativa para la atención de emergencias reales.
