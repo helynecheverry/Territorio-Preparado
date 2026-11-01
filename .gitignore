@@ -41,3 +41,10 @@ GEMINI.md
 .playwright-cli/
 /output/playwright/
 >>>>>>> 167ba5d (feat(backend): agregar estructura base y conexion a mongo para modulos de IA)
+
+# Documentos de presentación conservados solo en el equipo
+*.doc
+*.docx
+*.pdf
+/Territorio_Preparado_Actualizado.md
+/docs/PROYECTO.md

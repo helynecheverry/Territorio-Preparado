@@ -4,7 +4,7 @@
 
 Proyecto colaborativo con enfoque inicial en Cali, Colombia. Integra exploración territorial, simulación 3D, planificación de albergues, gestión de reportes e inteligencia artificial para apoyar la revisión de mensajes de emergencia.
 
-[Ver demostración del equipo](https://bryanmavi.github.io/Territorio-Preparado/) · [Backend y API](backend/README.md) · [Documento del proyecto](Territorio_Preparado_Actualizado.md)
+[Ver aplicación en GitHub Pages](https://helynecheverry.github.io/Territorio-Preparado/)
 
 ![Portada de Territorio Preparado y acceso a sus módulos](docs/images/inicio.png)
 
@@ -16,7 +16,7 @@ Mis aportes abarcan el **backend, el frontend y la integración de MongoDB y mod
 
 | Área | Mi aporte | Código y documentación relacionados |
 | --- | --- | --- |
-| Dirección y representación | Liderazgo del equipo como CEO y representación en la misión empresarial en Barcelona. | [Propuesta del proyecto](Territorio_Preparado_Actualizado.md) |
+| Dirección y representación | Liderazgo del equipo como CEO y representación en la misión empresarial en Barcelona. | Dirección del proyecto |
 | Backend | Desarrollo de la API en Rust y de los servicios para la operación de la aplicación. | [Backend](backend/), [configuración](backend/src/config.rs) y [dominio](backend/src/domain/) |
 | Frontend | Desarrollo de interfaces y conexión de los módulos con los servicios del backend. | [Aplicación web](backend/web/) y [frontend del proyecto](frontend/) |
 | MongoDB | Integración de la persistencia para usuarios, sesiones, reportes, trabajos de IA y propuestas de planeación. | [Conexión e índices](backend/src/db.rs) |
@@ -71,81 +71,35 @@ Interfaz de mensajes SOS y evaluación satelital del prototipo experimental. Est
 
 Las capturas corresponden a distintas vistas y etapas del prototipo. Los resultados de planeación son ejercicios ilustrativos; las imágenes satelitales son referencias de contexto.
 
-## Arquitectura y tecnologías
+## Estado actual
 
-```mermaid
-flowchart LR
-    U[Usuario] --> F[Frontend web]
-    F --> A[API Rust · Axum]
-    A --> D[(MongoDB)]
-    A --> Q[Cola durable de trabajos de IA]
-    Q --> I[Inferencia local · BERT y Marian]
-    I --> D
-    F --> P[Planificación y visualización 3D]
-```
+- Interfaz pública con explorador territorial, mapas y simulador 3D.
+- Backend en Rust con autenticación, roles, reportes y gestión de albergues.
+- MongoDB para usuarios, sesiones, reportes, trabajos de IA y propuestas de planeación.
+- Planificador con cálculo de capacidad, recursos y distribución conceptual en 3D.
+- Integración local de BERT y Marian para procesamiento de mensajes. La evaluación satelital con xView2 pertenece al servicio experimental Python y requiere su runtime.
 
-| Componente | Tecnologías y alcance |
-| --- | --- |
-| Aplicación operativa | Rust, Axum y Tokio; autenticación, roles, reportes, albergues y administración. |
-| Persistencia | MongoDB para la aplicación Rust; SQLite en los prototipos Python. |
-| IA local en Rust | Candle, clasificación BERT SOS y traducción Marian español–inglés. |
-| Interfaz | JavaScript, HTML/CSS, aplicación React compilada y visualización 3D. |
-| Cartografía | Leaflet, OpenStreetMap y capas satelitales de referencia. |
-| Servicios experimentales | Python/FastAPI y adaptador xView2 para imágenes antes/después. |
-| Despliegue preparado | Docker Compose y Caddy; configuración adicional del servicio IA en `deploy/ia/`. |
+## Lo que queremos lograr
 
-**Estado de la IA:** BERT devuelve puntuaciones cuyas etiquetas semánticas requieren verificación. xView2 pertenece al servicio experimental Python, requiere provisionar su runtime y no está migrado al backend Rust. SAM permanece pendiente. Consulta [el estado y los requisitos de los modelos](servidor/ia/README.md).
+Consolidar una plataforma que ayude a equipos e instituciones a prepararse antes de una emergencia, identificar espacios aprovechables y coordinar información y recursos.
 
-## Ejecutar localmente
+Los siguientes pasos son validar los resultados de IA y de planeación con especialistas, completar las funciones experimentales e incorporar fuentes oficiales y conectores operativos. El despliegue de los servicios debe permitir una operación persistente con control de acceso y seguimiento de los reportes.
 
-### Aplicación con backend Rust y MongoDB
+## GitHub Pages
 
-Requiere Rust 1.88 o superior, compilador C y MongoDB activo. Los modelos necesitan sus pesos locales; no están incluidos en Git.
+**[Abrir la demostración](https://helynecheverry.github.io/Territorio-Preparado/)**
 
-```bash
-cd backend
-./scripts/run-local.sh
-```
+GitHub Pages muestra la interfaz estática y el simulador. El backend, MongoDB y las inferencias de IA requieren un servidor independiente.
 
-Abrir **http://127.0.0.1:4180/app/**. El planificador está en **http://127.0.0.1:4180/app/planner.html**.
+El [workflow incluido](.github/workflows/pages.yml) publica `frontend/dist` cuando se actualiza `main`. Para habilitarlo, selecciona **Settings → Pages → Source → GitHub Actions** en este repositorio. El enlace estará disponible cuando el despliegue termine correctamente.
 
-La [guía del backend](backend/README.md#arranque-de-desarrollo) explica la configuración, el registro, el segundo factor por correo y la habilitación del primer administrador.
-
-### Interfaz estática y simulador
-
-Desde la raíz, con Python 3:
+## Ejecutar la interfaz localmente
 
 ```bash
 python3 -m http.server 4173 --bind 127.0.0.1 --directory frontend/dist
 ```
 
-Abrir **http://127.0.0.1:4173/** y seleccionar **06 Simulación** para acceder al laboratorio.
-
-La entrega incluye la aplicación React compilada; sus fuentes originales y su configuración de compilación no están disponibles en esta copia. Se conservan los scripts de mantenimiento y los fuentes del simulador. El frontend operativo de Rust está en `backend/web/`.
-
-### Servicios Python experimentales
-
-- [Servidor de demostración](servidor/README.md): consolidación de datos sintéticos y conector opcional a un modelo local.
-- [Servicio IA](servidor/ia/README.md): instalación de modelos, inferencias y pruebas.
-
-Estos servicios y el backend Rust utilizan por defecto el puerto 4180; ejecutar solo uno en ese puerto.
-
-## Publicación y procedencia
-
-La [demostración enlazada](https://bryanmavi.github.io/Territorio-Preparado/) corresponde al repositorio del equipo. GitHub Pages publica la interfaz estática; las inferencias y MongoDB requieren un servidor independiente.
-
-Este repositorio incluye un [workflow de Pages](.github/workflows/pages.yml) que prepara `frontend/dist` para el nombre del repositorio y lo publica al actualizar `main`. La configuración de despliegue debe habilitarse en el repositorio de destino.
-
-
-## Documentación
-
-- [Backend: instalación, API y despliegue](backend/README.md).
-- [Planificación de albergues: método y supuestos](backend/PLANNING.md).
-- [Diseño 3D, mapas y alcance](backend/DESIGN_AND_MAPS.md).
-- [Servidor propio, IA y vigilancia](docs/SERVIDOR_PROPIO_IA_Y_VIGILANCIA.md).
-- [Fuentes de datos](docs/DATASETS.md) y [fuentes del simulador](frontend/simulation-source/README.md).
-- Documento del proyecto: [Markdown](Territorio_Preparado_Actualizado.md), [PDF](Territorio_Preparado_Actualizado.pdf) y [Word](Territorio_Preparado_Actualizado.docx).
-- [Presentación del proyecto](Territorio_Preparado_Pitch.pdf).
+Abrir **http://127.0.0.1:4173/**. Para ejecutar la aplicación completa, consulta la [instalación del backend](backend/README.md#arranque-de-desarrollo).
 
 ## Equipo y alcance
 
