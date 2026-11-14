@@ -507,6 +507,10 @@ async fn real_workflow_security_and_persistence() {
             .stdout(Stdio::null())
             .stderr(Stdio::null());
         let mut child = bare.spawn().unwrap();
+        // Se comprueba que arrancó en lugar de seguir y fallar más abajo con un
+        // error de red: así, si el puerto estaba ocupado, el motivo se lee en el
+        // mensaje en vez de tener que deducirlo.
+        let mut listo = false;
         for _ in 0..100 {
             if Http::new()
                 .get(format!("http://127.0.0.1:{bare_port}/api/health"))
@@ -514,10 +518,15 @@ async fn real_workflow_security_and_persistence() {
                 .await
                 .is_ok_and(|r| r.status().is_success())
             {
+                listo = true;
                 break;
             }
             tokio::time::sleep(Duration::from_millis(100)).await;
         }
+        assert!(
+            listo,
+            "el servidor sin canales no arrancó en el puerto {bare_port}"
+        );
         let caps: Value = Http::new()
             .get(format!("http://127.0.0.1:{bare_port}/api/capabilities"))
             .send()
@@ -534,6 +543,8 @@ async fn real_workflow_security_and_persistence() {
         assert_eq!(caps["billing"], false);
         let _ = child.kill();
         let _ = child.wait();
+        // Su base temporal se borra: si no, cada ejecución deja una detrás.
+        mongo.database(&bare_db).drop().await.unwrap();
     }
 
     // El canal SMS sin teléfono no puede avisar a nadie.

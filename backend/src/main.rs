@@ -304,8 +304,10 @@ async fn main() -> anyhow::Result<()> {
             tracing::warn!(document = %id, reason = %reason, "No publicable todavía");
         }
         tracing::info!(
-            "Nada queda publicado. Estos textos necesitan revisión de un abogado \
-             antes de cobrar: PATCH /api/v1/legal/{{id}} desde una cuenta de administrador"
+            "Nada queda publicado. Publicar exige un revisor identificado, que puede \
+             ser del equipo: PATCH /api/v1/legal/{{id}} desde una cuenta de \
+             administrador. Para unos términos que respaldan un cobro, conviene \
+             que ese revisor sea asesoría jurídica"
         );
         return Ok(());
     }

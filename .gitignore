@@ -11,13 +11,16 @@ playwright-report/
 
 _site/
 
-<<<<<<< HEAD
 # Modelos, entornos y datos de ejecución locales
 **/.venv/
 /models/
+/pipeline/target/
 *.sqlite
 *.sqlite3
-output/playwright/
+
+# Artefactos de validación en navegador
+.playwright-cli/
+/output/playwright/
 
 # Instrucciones y memoria de asistentes: no se publican
 AGENTS.md
@@ -28,19 +31,6 @@ GEMINI.md
 .engram/
 **/*prompt*.md
 /Obsidian Vault/
-
-.playwright-cli/
-=======
-/pipeline/target/
-
-/servidor/ia/.venv/
-/models/
-*.sqlite
-
-# Local browser validation artifacts
-.playwright-cli/
-/output/playwright/
->>>>>>> 167ba5d (feat(backend): agregar estructura base y conexion a mongo para modulos de IA)
 
 # Documentos de presentación conservados solo en el equipo
 *.doc
