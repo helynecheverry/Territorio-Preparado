@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12372f">
+<meta name="description" content="Avisos de emergencia por sector, con recomendación de a dónde ir y qué hacer. No es alerta sísmica temprana.">
+<link rel="icon" href="/app/icon.svg">
+<link rel="manifest" href="/app/manifest.webmanifest">
+<link rel="stylesheet" href="/app/alerta.css">
+<title>Avisos · Territorio Preparado</title>
+<script src="/app/alerta.js" defer></script>
+</head>
+<body>
+
+<header>
+  <span class="symbol">TP</span>
+  <div>
+    <h1>Avisos</h1>
+    <p id="identity">Territorio Preparado</p>
+  </div>
+  <button id="logout" hidden>Salir</button>
+</header>
+
+<main>
+  <div id="notice" role="status" aria-live="polite"></div>
+
+  <!-- La expectativa que más daño haría si fuera equivocada, en la interfaz y
+       no solo en los términos. -->
+  <p class="disclaimer" id="disclaimer">
+    Esto <strong>no es alerta sísmica temprana</strong>. Los catálogos publican un
+    sismo entre uno y cinco minutos después de que ocurre, así que el aviso llega
+    cuando ya pasó. Sirve para decidir qué hacer y a dónde ir. Ante una orden de
+    la autoridad, sigue a la autoridad.
+  </p>
+
+  <!-- Acceso -->
+  <section id="access" class="card" hidden>
+    <h2 id="access-title">Entra a tu cuenta</h2>
+    <p class="muted" id="access-help">Tu correo y un código de seis dígitos protegen el acceso.</p>
+    <form id="credentials" autocomplete="on">
+      <label>Correo electrónico
+        <input id="email" type="email" autocomplete="email" required maxlength="254">
+      </label>
+      <label id="password-label">Contraseña
+        <input id="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128">
+      </label>
+      <button class="primary" type="submit" id="submit-access">Continuar</button>
+    </form>
+    <form id="proof" hidden>
+      <label>Código enviado a tu correo
+        <input id="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+      </label>
+      <button class="primary" type="submit">Verificar</button>
+      <button type="button" id="back">Volver</button>
+    </form>
+    <p class="muted" id="switch-mode"></p>
+  </section>
+
+  <!-- Avisos recibidos -->
+  <section id="tab-avisos" class="tab" hidden>
+    <h2>Tus avisos</h2>
+    <p class="muted">Lo que el sistema decidió para tus lugares. Aparecer aquí no garantiza que el mensaje se haya entregado: ningún canal lo garantiza.</p>
+    <div class="card" id="push-state">
+      <h2>Notificaciones</h2>
+      <p class="muted" id="push-help">Activa las notificaciones para recibir los avisos con la aplicación cerrada.</p>
+      <button class="primary" id="enable-push">Activar notificaciones</button>
+    </div>
+    <div id="avisos"></div>
+  </section>
+
+  <!-- Lugares afiliados -->
+  <section id="tab-lugares" class="tab" hidden>
+    <h2>Tus lugares</h2>
+    <p class="muted">Un sismo a media tarde te encuentra en un sitio distinto que de madrugada. Puedes registrar hasta ocho.</p>
+    <div class="card" id="lugares"></div>
+    <div class="card">
+      <h2>Añadir un lugar</h2>
+      <form id="nuevo-lugar">
+        <label>Nombre
+          <input id="lugar-label" type="text" required maxlength="60" placeholder="Casa, Trabajo, Escuela">
+        </label>
+        <p class="muted" id="coords-state">Necesitamos la ubicación para saber tu sector y buscarte un destino.</p>
+        <button type="button" id="usar-ubicacion">Usar mi ubicación actual</button>
+        <label>Nivel mínimo de aviso
+          <select id="lugar-nivel">
+            <option value="info">Todos los avisos</option>
+            <option value="prepare">Solo prepararse o evacuar</option>
+            <option value="evacuate">Solo evacuar</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="canal-push" checked> Avisarme por notificación (sin costo)</label>
+        <label class="check"><input type="checkbox" id="canal-sms"> Avisarme también por SMS en evacuaciones (plan de pago)</label>
+        <label id="telefono-label" hidden>Teléfono con prefijo internacional
+          <input id="telefono" type="tel" placeholder="+573001234567" maxlength="16">
+        </label>
+        <label class="check"><input type="checkbox" id="consent" required> Acepto que se use esta ubicación para avisarme y recomendarme un destino. Puedo eliminarla en cualquier momento.</label>
+        <button class="primary" type="submit">Guardar lugar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- A dónde ir -->
+  <section id="tab-destinos" class="tab" hidden>
+    <h2>A dónde ir</h2>
+    <p class="muted">Espacios candidatos del inventario, no albergues habilitados. La distancia es en línea recta y no una ruta a pie: no sabe de calles bloqueadas.</p>
+    <div class="card">
+      <label>Desde
+        <select id="destino-lugar"></select>
+      </label>
+      <label>Amenaza
+        <select id="destino-amenaza">
+          <option value="earthquake">Sismo</option>
+          <option value="flood">Inundación</option>
+        </select>
+      </label>
+      <button class="primary" type="button" id="buscar-destinos">Buscar</button>
+    </div>
+    <div id="destinos"></div>
+  </section>
+
+  <!-- Qué hacer -->
+  <section id="tab-guia" class="tab" hidden>
+    <h2>Qué hacer <span class="offline" id="guia-offline" hidden>guardado sin red</span></h2>
+    <p class="muted">Se guarda en tu dispositivo para que esté disponible cuando no haya señal.</p>
+    <div class="card">
+      <label>Amenaza
+        <select id="guia-amenaza"></select>
+      </label>
+    </div>
+    <div id="guia"></div>
+  </section>
+
+  <!-- Plan -->
+  <section id="tab-plan" class="tab" hidden>
+    <h2>Tu plan</h2>
+    <div class="card" id="plan-state"></div>
+    <div class="card" id="plan-terms" hidden>
+      <h2 id="terms-title">Términos del servicio</h2>
+      <p class="muted">Léelos antes de contratar. Dicen qué se cobra y qué no.</p>
+      <pre id="terms-body"></pre>
+      <label class="check"><input type="checkbox" id="accept-terms"> He leído y acepto los términos</label>
+      <button class="primary" type="button" id="do-accept">Aceptar</button>
+    </div>
+    <div class="card" id="plan-catalog"></div>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-tab="avisos" aria-current="page"><span class="glyph" aria-hidden="true">◉</span>Avisos</button>
+  <button data-tab="lugares"><span class="glyph" aria-hidden="true">⌂</span>Lugares</button>
+  <button data-tab="destinos"><span class="glyph" aria-hidden="true">➤</span>A dónde ir</button>
+  <button data-tab="guia"><span class="glyph" aria-hidden="true">✚</span>Qué hacer</button>
+  <button data-tab="plan"><span class="glyph" aria-hidden="true">★</span>Plan</button>
+</nav>
+
+</body>
+</html>

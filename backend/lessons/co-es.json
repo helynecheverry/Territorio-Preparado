@@ -1,0 +1,197 @@
+{
+  "_comment": [
+    "Borrador de contenido educativo. NADA de esto se publica al importarse:",
+    "la API exige que una persona identificada lo revise y complete la cita",
+    "exacta de cada fuente antes de que un ciudadano lo vea. Esa persona puede",
+    "ser de este equipo; no hace falta una entidad externa.",
+    "",
+    "El texto recoge la guía pública y establecida de las entidades citadas.",
+    "Quien revise debe contrastarlo con la publicación vigente de la entidad y",
+    "adaptarlo al contexto local antes de publicar.",
+    "",
+    "SOBRE LOS VIDEOS: el de abajo es un CANDIDATO localizado por búsqueda; hay",
+    "que abrirlo y confirmar que es el video correcto antes de publicar. La",
+    "importación comprueba que la dirección responde, pero una plataforma que",
+    "retira un video sigue devolviendo una página con código 200, así que esa",
+    "comprobación no lo detecta. Alojar los videos propios (por ejemplo en R2)",
+    "es mejor en los tres aspectos que importan aquí: se reproducen dentro de la",
+    "aplicación, el navegador puede guardarlos para verlos sin red, y nadie",
+    "externo puede retirarlos."
+  ],
+  "lessons": [
+    {
+      "id": "sismo-que-hacer",
+      "hazard_type": "earthquake",
+      "locale": "es-CO",
+      "title": "Qué hacer ante un sismo",
+      "summary": "Antes, durante y después de un movimiento sísmico.",
+      "steps": [
+        {
+          "phase": "before",
+          "text": "Identifica en cada espacio donde pasas tiempo los lugares seguros: junto a muros estructurales, lejos de ventanas, de objetos altos sin anclar y de fachadas."
+        },
+        {
+          "phase": "before",
+          "text": "Ancla a la pared estanterías, televisores y lo que pueda caer. Es la causa más común de lesiones."
+        },
+        {
+          "phase": "before",
+          "text": "Acuerda con tu familia un punto de reencuentro y un contacto fuera de la ciudad, porque las líneas locales se saturan."
+        },
+        {
+          "phase": "during",
+          "text": "Agáchate, cúbrete y agárrate: al suelo, protegiendo cabeza y cuello bajo un mueble resistente, y sujétate hasta que pare el movimiento."
+        },
+        {
+          "phase": "during",
+          "text": "No corras hacia la salida ni uses escaleras o ascensores mientras tiembla. La mayoría de las lesiones ocurren al intentar desplazarse."
+        },
+        {
+          "phase": "during",
+          "text": "Si estás al aire libre, aléjate de fachadas, postes y cables, y quédate en un espacio despejado."
+        },
+        {
+          "phase": "after",
+          "text": "Revisa si hay heridos y atiende primero a quien no pueda moverse por sí mismo."
+        },
+        {
+          "phase": "after",
+          "text": "Cierra el gas si lo hay y no uses llamas ni interruptores si notas olor a gas."
+        },
+        {
+          "phase": "after",
+          "text": "Espera réplicas: pueden ocurrir durante días y afectar estructuras ya debilitadas."
+        },
+        {
+          "phase": "after",
+          "text": "Si tienes que salir, dirígete al destino que recomiende la aplicación y no al espacio abierto más cercano: hay parques sobre suelo licuable y en zona inundable."
+        }
+      ],
+      "video": {
+        "url": "https://www.youtube.com/watch?v=thnS0I2VrkY",
+        "duration_seconds": null,
+        "transcript": null
+      },
+      "sources": [
+        {
+          "name": "UNGRD — Unidad Nacional para la Gestión del Riesgo de Desastres (Colombia)",
+          "reference": null
+        },
+        {
+          "name": "Servicio Geológico Colombiano",
+          "reference": null
+        },
+        {
+          "name": "Cruz Roja Colombiana",
+          "reference": null
+        }
+      ],
+      "reviewed_by": null,
+      "published": false
+    },
+    {
+      "id": "inundacion-que-hacer",
+      "hazard_type": "flood",
+      "locale": "es-CO",
+      "title": "Qué hacer ante una inundación",
+      "summary": "Cómo actuar cuando sube el nivel del agua.",
+      "steps": [
+        {
+          "phase": "before",
+          "text": "Averigua si tu vivienda está en zona de amenaza por inundación y cuál es la ruta hacia terreno más alto."
+        },
+        {
+          "phase": "before",
+          "text": "Guarda documentos y medicamentos en un lugar elevado y en bolsa impermeable."
+        },
+        {
+          "phase": "during",
+          "text": "Muévete hacia terreno más alto en cuanto se emita el aviso, sin esperar a ver el agua."
+        },
+        {
+          "phase": "during",
+          "text": "No cruces corrientes de agua a pie ni en vehículo, aunque parezcan bajas: una corriente somera basta para arrastrar a una persona o un carro."
+        },
+        {
+          "phase": "during",
+          "text": "Desconecta la electricidad si puedes hacerlo sin pisar agua."
+        },
+        {
+          "phase": "after",
+          "text": "No regreses hasta que la autoridad lo indique: puede haber estructuras socavadas y agua contaminada."
+        },
+        {
+          "phase": "after",
+          "text": "No consumas agua ni alimentos que hayan estado en contacto con el agua de la inundación."
+        }
+      ],
+      "video": null,
+      "sources": [
+        {
+          "name": "UNGRD — Unidad Nacional para la Gestión del Riesgo de Desastres (Colombia)",
+          "reference": null
+        },
+        {
+          "name": "CVC — Corporación Autónoma Regional del Valle del Cauca",
+          "reference": null
+        },
+        {
+          "name": "Cruz Roja Colombiana",
+          "reference": null
+        }
+      ],
+      "reviewed_by": null,
+      "published": false
+    },
+    {
+      "id": "kit-de-emergencia",
+      "hazard_type": "general",
+      "locale": "es-CO",
+      "title": "Kit de emergencia",
+      "summary": "Qué tener preparado antes de que haga falta.",
+      "steps": [
+        {
+          "phase": "before",
+          "text": "Agua potable para al menos tres días, calculando unos cuatro litros por persona y día entre bebida e higiene."
+        },
+        {
+          "phase": "before",
+          "text": "Alimentos no perecederos que no necesiten cocción, y un abrelatas manual."
+        },
+        {
+          "phase": "before",
+          "text": "Botiquín, los medicamentos de uso continuo de cada integrante y copia de sus fórmulas médicas."
+        },
+        {
+          "phase": "before",
+          "text": "Linterna y radio con pilas de repuesto, o de manivela. Durante una emergencia la radio sigue funcionando cuando los datos no."
+        },
+        {
+          "phase": "before",
+          "text": "Copia de documentos de identidad, silbato, y efectivo en billetes pequeños."
+        },
+        {
+          "phase": "during",
+          "text": "Lleva el kit solo si puedes hacerlo sin retrasar tu salida. Tu vida vale más que el kit."
+        },
+        {
+          "phase": "after",
+          "text": "Revisa y renueva el agua, los alimentos y los medicamentos cada seis meses."
+        }
+      ],
+      "video": null,
+      "sources": [
+        {
+          "name": "UNGRD — Unidad Nacional para la Gestión del Riesgo de Desastres (Colombia)",
+          "reference": null
+        },
+        {
+          "name": "Cruz Roja Colombiana",
+          "reference": null
+        }
+      ],
+      "reviewed_by": null,
+      "published": false
+    }
+  ]
+}

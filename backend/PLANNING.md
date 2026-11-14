@@ -4,7 +4,11 @@ Abrir `/app/planner.html` con una sesión activa. La aplicación principal y el 
 
 ## Datos y módulos
 
-`src/planning/catalog.rs` carga el archivo local `frontend/dist/data/spaces.json` y registra su SHA256. Se conservan los 2.991 registros: 1.970 polígonos y 1.021 puntos; solo las huellas poligonales que pasan validación geométrica son calculables. En esta revisión pasan 1.967 y se rechazan tres polígonos inválidos. No se inventan polígonos a partir de puntos ni de un área declarada. El área del inventario se muestra por separado de la recalculada.
+`src/planning/catalog.rs` consulta la colección `spaces` de MongoDB. El inventario se carga con `territorio-api import-territory territories/co-cali.json ../frontend/dist/data/spaces.json`, que registra el SHA256 del archivo en el territorio y es idempotente: reimportar el mismo archivo no toca la colección. Se conservan los 2.991 registros: 1.970 polígonos y 1.021 puntos; solo las huellas poligonales que pasan validación geométrica son calculables. En esta revisión pasan 1.967 y se rechazan tres polígonos inválidos. No se inventan polígonos a partir de puntos ni de un área declarada. El área del inventario se muestra por separado de la recalculada.
+
+Cada espacio guarda su huella original sin índice geoespacial y, por separado, un punto representativo —el centro de su caja envolvente— que sí está indexado con `2dsphere`. MongoDB rechazaría al insertar los tres polígonos inválidos si la huella estuviera indexada, mientras que un punto siempre es válido; así la validación sigue siendo la de `geometry.rs` y las consultas por cercanía usan índice. El punto no es el centroide geométrico y no se usa para medir: solo para ordenar por distancia.
+
+`src/territory.rs` define el territorio —país, división administrativa, ciudad, zona horaria e idioma— y su nivel de cobertura. La cobertura se **deriva** de las capas de amenaza cargadas (`flood`, `seismic_microzonation`, `liquefaction`) y nunca se escribe a mano: con las tres es `complete`, con alguna `partial` y sin ninguna `basic`. `missing_layers` acompaña cada respuesta, porque la ausencia de una capa no significa ausencia de riesgo y el territorio debe declarar lo que no verificó.
 
 `geometry.rs` convierte Polygon/MultiPolygon WGS84 a una proyección equirectangular local, con radio 6.371.008,8 m y origen en la primera coordenada. Es una aproximación de planeación para Cali, no una medición topográfica. Valida coordenadas en el ámbito [-77,-76] × [3,4], anillos cerrados, autocruces y solapes. `geo` realiza diferencia, intersección y contención de polígonos completos, incluyendo huecos y componentes separados.
 
@@ -28,7 +32,7 @@ La dotación sigue las referencias ya usadas por el proyecto: un kit por cada 20
 
 ## Uso
 
-1. Buscar un espacio por nombre, barrio, ID o comuna. El ejemplo inicial es `epou-8413`, Parque Vipasa.
+1. Buscar un espacio por nombre, barrio, ID o comuna. La aplicación selecciona el primer resultado del inventario del territorio activo; ya no hay un espacio de ejemplo fijado en el código.
 2. Declarar objetivo del ejercicio, duración y reserva de servicios; completar solo disponibilidades conocidas.
 3. Dibujar exclusiones sobre el plano local y cerrar cada polígono. Máximo 20 exclusiones y 500 vértices en total. No se usa una captura de pantalla como medición de terreno.
 4. Calcular y revisar límites, necesidades, faltantes, alertas y verificaciones pendientes. Editar entradas invalida la vista previa anterior y obliga a recalcular.
@@ -39,12 +43,12 @@ El plano permite elegir imágenes satelitales, calles o vectores locales. El dis
 
 ## API
 
-Todas las rutas parten de `/api/v1/planning`, requieren sesión y las escrituras conservan validación de `Origin`.
+Todas las rutas parten de `/api/v1/planning`, requieren sesión y las escrituras conservan validación de `Origin`. El parámetro `territory` elige el inventario; si se omite y solo hay un territorio cargado se usa ese, y con más de uno es obligatorio nombrarlo, para no devolver espacios de otra ciudad en silencio. `GET /api/v1/territories` lista los territorios con su cobertura.
 
 | Ruta | Método | Permiso |
 |---|---|---|
-| `/spaces?q=Vipasa&commune=02&page=0&measurable=true` | GET | Sesión; páginas de 40 |
-| `/spaces/{id}` | GET | Sesión; geometría y metadatos |
+| `/spaces?q=Vipasa&territory=co-cali&commune=02&page=0&measurable=true` | GET | Sesión; páginas de 40 |
+| `/spaces/{id}` | GET | Sesión; geometría y metadatos. El `id` lleva el territorio como prefijo: `co-cali:epou-8413` |
 | `/preview` | POST | Sesión; 15 cálculos/minuto/usuario |
 | `/plans` | POST | Operador/admin; 40 guardados/hora |
 | `/plans?page=0` | GET | Operador/admin; páginas de 20, sin geometrías completas |
@@ -54,7 +58,7 @@ Ejemplo de solicitud:
 
 ```json
 {
-  "space_id": "epou-8413",
+  "space_id": "co-cali:epou-8413",
   "profile": "camp",
   "days": 3,
   "target_people": 120,
@@ -69,7 +73,7 @@ Ejemplo de solicitud:
 }
 ```
 
-Guardar exige clave de idempotencia: repetir la solicitud recupera la misma instantánea; reutilizarla con otros parámetros devuelve 409. Los índices únicos se crean al iniciar. Se audita intención de guardado, conforme al funcionamiento de la auditoría general. Los cálculos se ejecutan fuera del executor HTTP, con dos plazas por proceso y presupuesto geométrico limitado. MongoDB comparte propuestas y límites entre réplicas; cada instancia carga su catálogo local y debe desplegar la misma revisión de datos.
+Guardar exige clave de idempotencia: repetir la solicitud recupera la misma instantánea; reutilizarla con otros parámetros devuelve 409. Los índices únicos se crean al iniciar. Se audita intención de guardado, conforme al funcionamiento de la auditoría general. Los cálculos se ejecutan fuera del executor HTTP, con dos plazas por proceso y presupuesto geométrico limitado. MongoDB comparte propuestas, límites e inventario entre réplicas, así que todas las instancias ven la misma revisión de datos sin necesidad de desplegarla con el binario.
 
 ## Verificación
 

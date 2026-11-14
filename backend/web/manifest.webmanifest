@@ -1,0 +1,17 @@
+{
+  "name": "Territorio Preparado · Avisos",
+  "short_name": "Avisos TP",
+  "description": "Avisos de emergencia por sector, con recomendación de a dónde ir y qué hacer. No es alerta sísmica temprana.",
+  "lang": "es-CO",
+  "dir": "ltr",
+  "start_url": "/app/alerta.html",
+  "scope": "/app/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c1f1b",
+  "theme_color": "#12372f",
+  "icons": [
+    { "src": "/app/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/app/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

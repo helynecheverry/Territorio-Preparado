@@ -1,0 +1,26 @@
+{
+  "_comment": [
+    "BORRADOR. Necesita revisión de un abogado antes de publicarse, y la API",
+    "lo impide hasta que alguien quede identificado en 'reviewed_by'.",
+    "",
+    "Este texto no es asesoría legal. Recoge las decisiones de producto que el",
+    "equipo ya tomó —informar y recomendar, sin convenio con la autoridad; se",
+    "cobra el monitoreo y el contenido, no la entrega— para que un abogado",
+    "trabaje sobre algo concreto en lugar de desde cero. Faltan, al menos: la",
+    "razón social y el NIT del responsable, el régimen de protección de datos",
+    "aplicable (Ley 1581 de 2012 y su decreto reglamentario), el canal de",
+    "atención al consumidor, la política de retracto y reembolso, y la",
+    "jurisdicción."
+  ],
+  "documents": [
+    {
+      "id": "terms",
+      "version": "2026-11-v1-borrador",
+      "locale": "es-CO",
+      "title": "Términos del servicio (borrador sin revisión jurídica)",
+      "body": "1. QUÉ ES ESTE SERVICIO\n\nTerritorio Preparado es un servicio de información. Vigila catálogos sísmicos públicos y, cuando un evento ya ocurrido puede haber afectado la ubicación que usted registró, le envía un aviso con una recomendación de destino y contenido educativo sobre cómo actuar.\n\n2. QUÉ NO ES\n\nESTE SERVICIO NO ES UN SISTEMA DE ALERTA SÍSMICA TEMPRANA. Los catálogos oficiales publican un sismo entre uno y cinco minutos después de que ocurre, así que el aviso siempre es posterior al evento y no le da tiempo de anticipación. La detección en segundos requiere instrumentación dedicada que este servicio no opera.\n\nEste servicio no sustituye ni reemplaza a las autoridades de gestión del riesgo de desastres. No opera bajo convenio con ellas. Ante una orden de una autoridad competente, siga la autoridad y no esta aplicación.\n\n3. QUÉ SE COBRA\n\nSe cobra el servicio de monitoreo continuo y el acceso al contenido educativo. NO se cobra, ni se promete, la entrega de un aviso concreto.\n\nEl plan gratuito recibe avisos en todos los niveles por notificación web, sin costo. El plan de pago añade el envío por SMS en avisos de evacuación, por ser un canal que funciona cuando el teléfono no tiene datos móviles.\n\n4. LÍMITES DE LA ENTREGA\n\nNingún canal garantiza que un aviso llegue, ni que llegue a tiempo. La notificación web depende del servicio de mensajería del navegador y del sistema operativo del dispositivo. El SMS depende de la red del operador, que en una emergencia se congestiona o se cae. El servicio se presta en la modalidad de mejor esfuerzo.\n\n5. LÍMITES DE LAS RECOMENDACIONES\n\nLas recomendaciones de destino se calculan con las capas de amenaza disponibles para cada territorio y la respuesta indica expresamente qué se verificó y qué no. La ausencia de una amenaza declarada significa que no se encontró intersección con los datos cargados, y NO acredita que un lugar sea seguro.\n\nLas distancias son en línea recta y no son rutas a pie: no consideran calles bloqueadas, puentes ni estructuras dañadas. Las capacidades son estimaciones por área y no autorizan el uso de ningún espacio como albergue. Los espacios sugeridos son candidatos del inventario territorial, no albergues habilitados por una autoridad.\n\n6. SUS DATOS\n\nPara avisarle necesitamos la ubicación que usted registre. Esa ubicación se usa para determinar su sector, calcular su distancia a un evento y buscarle un destino. No se cede a terceros con fines publicitarios. Puede eliminar cada ubicación registrada en cualquier momento, y eliminarla borra el dato.\n\n7. REVISIÓN HUMANA DEL CONTENIDO\n\nEl contenido educativo se publica solo después de que una persona identificada lo revise y se cita su fuente.\n\n[PENDIENTE DE COMPLETAR POR ASESORÍA JURÍDICA: identificación del responsable, tratamiento de datos personales conforme a la normativa aplicable, canal de atención, retracto y reembolso, limitación de responsabilidad, modificaciones, jurisdicción y ley aplicable.]",
+      "reviewed_by": null,
+      "published": false
+    }
+  ]
+}

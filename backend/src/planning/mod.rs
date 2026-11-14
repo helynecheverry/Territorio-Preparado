@@ -1,11 +1,11 @@
-mod catalog;
+pub mod catalog;
 pub mod engine;
-mod geometry;
+pub mod geometry;
 mod reviews;
 use crate::{
     AppState, auth, db,
     error::{self, Result},
-    security,
+    security, territory,
 };
 use axum::{
     Json, Router,
@@ -21,18 +21,23 @@ use mongodb::{
 };
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::path::Path as FilePath;
 
+/// Estado del planificador. Ya no guarda el inventario: el catálogo vive en
+/// MongoDB y se consulta por territorio. Lo único que queda en memoria es el
+/// límite de cálculos geométricos simultáneos por proceso.
 pub struct Planning {
-    catalog: catalog::Catalog,
     slots: std::sync::Arc<tokio::sync::Semaphore>,
 }
 impl Planning {
-    pub fn load(frontend_dir: &str) -> anyhow::Result<Self> {
-        Ok(Self {
-            catalog: catalog::Catalog::load(&FilePath::new(frontend_dir).join("data/spaces.json"))?,
+    pub fn new() -> Self {
+        Self {
             slots: std::sync::Arc::new(tokio::sync::Semaphore::new(2)),
-        })
+        }
+    }
+}
+impl Default for Planning {
+    fn default() -> Self {
+        Self::new()
     }
 }
 pub fn routes() -> Router<AppState> {
@@ -50,9 +55,35 @@ pub fn routes() -> Router<AppState> {
 #[derive(Deserialize)]
 struct Search {
     q: Option<String>,
+    territory: Option<String>,
     commune: Option<String>,
-    page: Option<usize>,
+    page: Option<u64>,
     measurable: Option<bool>,
+}
+/// Territorio sobre el que trabaja la petición.
+///
+/// Si no se indica y solo hay un territorio cargado, se usa ese: evita que cada
+/// consulta tenga que nombrarlo mientras el despliegue cubre una sola ciudad. En
+/// cuanto hay más de uno, nombrarlo es obligatorio, porque elegir por omisión
+/// entre varias ciudades devolvería espacios de la equivocada en silencio.
+async fn resolve_territory(s: &AppState, requested: Option<&str>) -> Result<territory::Territory> {
+    if let Some(id) = requested {
+        if !territory::Territory::valid_id(id) {
+            return Err(error::bad("Identificador de territorio inválido"));
+        }
+        return territory::get(&s.db, id).await;
+    }
+    let mut all = territory::list(&s.db).await?;
+    match all.len() {
+        1 => Ok(all.remove(0)),
+        0 => Err(error::Error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "No hay territorios cargados; importa un inventario",
+        )),
+        _ => Err(error::bad(
+            "Indica el territorio: hay varios inventarios cargados",
+        )),
+    }
 }
 async fn spaces(
     State(s): State<AppState>,
@@ -64,37 +95,28 @@ async fn spaces(
     if needle.len() > 120 {
         return Err(error::bad("Búsqueda demasiado larga"));
     }
-    let items: Vec<_> = s
-        .planning
-        .catalog
-        .spaces
-        .values()
-        .filter(|v| {
-            let searchable = format!(
-                "{} {} {}",
-                v.id,
-                v.properties["name"].as_str().unwrap_or_default(),
-                v.properties["neighborhood"].as_str().unwrap_or_default()
-            )
-            .to_lowercase();
-            searchable.contains(&needle)
-                && q.commune
-                    .as_ref()
-                    .is_none_or(|c| v.properties["commune"].as_str() == Some(c))
-                && q.measurable.is_none_or(|m| v.measurable == m)
-        })
-        .collect();
-    let total = items.len();
+    let t = resolve_territory(&s, q.territory.as_deref()).await?;
     let page = q.page.unwrap_or(0).min(1000);
-    let items: Vec<_> = items
-        .into_iter()
-        .skip(page * 40)
-        .take(40)
-        .map(|v| s.planning.catalog.summary(v))
-        .collect();
-    Ok(Json(
-        json!({"items":items,"total":total,"page":page,"page_size":40,"catalogue_total":s.planning.catalog.spaces.len(),"measurable_total":s.planning.catalog.spaces.values().filter(|v|v.measurable).count()}),
-    ))
+    let (items, total) = catalog::search(
+        &s.db,
+        catalog::Query {
+            territory_id: &t.id,
+            needle: &needle,
+            commune: q.commune.as_deref(),
+            measurable: q.measurable,
+            page,
+        },
+    )
+    .await?;
+    Ok(Json(json!({
+        "items": items,
+        "total": total,
+        "page": page,
+        "page_size": 40,
+        "territory": t.summary(),
+        "catalogue_total": t.spaces_total,
+        "measurable_total": t.measurable_total,
+    })))
 }
 async fn space(
     State(s): State<AppState>,
@@ -102,24 +124,18 @@ async fn space(
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     auth::actor(&s, &h).await?;
-    let item = s
-        .planning
-        .catalog
-        .spaces
-        .get(&id)
-        .ok_or(error::Error(StatusCode::NOT_FOUND, "Espacio no encontrado"))?;
-    Ok(Json(
-        json!({"summary":s.planning.catalog.summary(item),"geometry":item.shape,"properties":item.properties,"source_sha256":s.planning.catalog.sha256}),
-    ))
+    let item = catalog::get(&s.db, &id).await?;
+    let t = territory::get(&s.db, &item.territory_id).await?;
+    Ok(Json(json!({
+        "summary": catalog::summary(&item),
+        "geometry": item.shape,
+        "properties": item.properties,
+        "territory": t.summary(),
+        "source_sha256": t.source_sha256,
+    })))
 }
 async fn compute(s: &AppState, i: PlanInput) -> Result<Value> {
-    let item = s
-        .planning
-        .catalog
-        .spaces
-        .get(&i.space_id)
-        .ok_or(error::Error(StatusCode::NOT_FOUND, "Espacio no encontrado"))?
-        .clone();
+    let item = catalog::get(&s.db, &i.space_id).await?;
     if !item.measurable {
         return Err(error::bad(
             "Este espacio no tiene una huella poligonal válida para calcular capacidad",
@@ -131,13 +147,18 @@ async fn compute(s: &AppState, i: PlanInput) -> Result<Value> {
             "Parámetros inválidos: revisa duración, recursos, reserva o confirmación de huella cubierta",
         ));
     }
+    // El hash se lee antes de tomar la plaza de cálculo: ocupar una de las dos
+    // plazas del proceso durante una consulta a la base de datos reduciría sin
+    // motivo la concurrencia del planificador.
+    let hash = territory::get(&s.db, &item.territory_id)
+        .await?
+        .source_sha256;
     let permit = s.planning.slots.clone().try_acquire_owned().map_err(|_| {
         error::Error(
             StatusCode::TOO_MANY_REQUESTS,
             "El planificador está ocupado; vuelve a intentarlo",
         )
     })?;
-    let hash = s.planning.catalog.sha256.clone();
     let result = tokio::task::spawn_blocking(move || {
         let _permit = permit;
         engine::calculate(&item, &i, &hash)

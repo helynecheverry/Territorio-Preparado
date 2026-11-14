@@ -96,7 +96,17 @@ pub async fn guard(State(state): State<AppState>, req: Request, next: Next) -> R
             limit(&state, "auth-http", &peer.0.ip().to_string(), 40, 60).await?;
         }
     }
-    if req.method() != "GET" && req.method() != "HEAD" && req.method() != "OPTIONS" {
+    // El webhook de cobro queda fuera de la comprobación de `Origin`. Esa
+    // comprobación protege contra CSRF, que consiste en que un sitio ajeno haga
+    // que el **navegador** emita una escritura autenticada por cookie; esa ruta
+    // no acepta autenticación por cookie en absoluto, se valida con firma HMAC
+    // sobre el cuerpo crudo, y un servidor de pagos no envía nuestro `Origin`.
+    let signed_webhook = req.uri().path() == crate::billing::WEBHOOK_PATH;
+    if !signed_webhook
+        && req.method() != "GET"
+        && req.method() != "HEAD"
+        && req.method() != "OPTIONS"
+    {
         let origin = req
             .headers()
             .get(header::ORIGIN)
@@ -134,7 +144,7 @@ pub async fn guard(State(state): State<AppState>, req: Request, next: Next) -> R
             .unwrap(),
     );
     if strict {
-        h.insert("content-security-policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'".parse().unwrap());
+        h.insert("content-security-policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' https:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'".parse().unwrap());
     }
     h.insert(header::CACHE_CONTROL, "no-store".parse().unwrap());
     if state.config.production {
