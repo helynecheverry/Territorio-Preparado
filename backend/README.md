@@ -240,9 +240,9 @@ magnitud contra cada afiliación.
 
 ### Reparto
 
-El motor decide y encola; **no envía**. El transporte por Web Push y SMS es la
-fase siguiente y se conecta consumiendo la colección `notifications`. Separarlo
-así permite verificar el criterio antes de que exista el canal, en lugar de
+El motor decide y encola; **no envía**. El transporte por Web Push y SMS es un
+módulo aparte (ver [Entrega](#entrega)) que consume la colección `notifications`.
+Separarlo así permite verificar el criterio antes de tocar el canal, en lugar de
 descubrir un error de juicio cuando ya se mandó el mensaje.
 
 Cada aviso tiene un `_id` determinista `canónico:afiliación:canal` con clave
