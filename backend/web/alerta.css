@@ -1,0 +1,406 @@
+/* Aplicación ciudadana de avisos.
+ *
+ * Pensada primero para un teléfono y para alguien asustado: objetivos de toque
+ * grandes, contraste alto, y el nivel del aviso legible de un vistazo sin leer
+ * el texto. No se usa color como único portador de significado —cada nivel lleva
+ * además su palabra— porque hay gente que no distingue rojo de verde y porque a
+ * pleno sol la pantalla pierde saturación.
+ */
+
+:root {
+  --fondo: #0c1f1b;
+  --superficie: #12372f;
+  --superficie-alta: #17483d;
+  --borde: #2a6253;
+  --texto: #f2f7f2;
+  --texto-suave: #b9cec4;
+  --acento: #d9ed9b;
+  --evacuar: #ff6b5a;
+  --preparar: #ffc24d;
+  --info: #7fd1e8;
+  --radio: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* El atributo `hidden` del navegador aplica `display: none` con muy poca
+ * especificidad, así que cualquier regla de `display` del autor lo anula sin
+ * aviso. Pasó con la barra de pestañas: se mostraba sin sesión iniciada. Se
+ * refuerza una vez aquí en lugar de recordarlo en cada regla. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  /* Deja sitio a la barra de pestañas fija y a la zona segura del teléfono. */
+  padding-bottom: calc(76px + env(safe-area-inset-bottom));
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background: var(--superficie);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+header .symbol {
+  background: var(--acento);
+  color: var(--superficie);
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 6px 9px;
+  letter-spacing: 0.5px;
+}
+
+header h1 {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+header p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+header button {
+  margin-left: auto;
+}
+
+main {
+  padding: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.muted {
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+
+/* Advertencia permanente: esto no es alerta temprana. Vive en la interfaz y no
+ * solo en los términos, porque es la expectativa que más daño haría si fuera
+ * equivocada. */
+.disclaimer {
+  background: var(--superficie);
+  border-left: 3px solid var(--acento);
+  border-radius: 0 var(--radio) var(--radio) 0;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin: 0 0 16px;
+}
+
+.card {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 16px;
+  margin: 0 0 14px;
+}
+
+label {
+  display: block;
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+input[type='email'],
+input[type='password'],
+input[type='text'],
+input[type='tel'],
+select {
+  width: 100%;
+  margin-top: 5px;
+  padding: 13px 12px;
+  font-size: 1rem;
+  color: var(--texto);
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+
+label.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--texto);
+  font-size: 0.9rem;
+}
+
+label.check input {
+  /* Casilla grande: se marca con el pulgar, no con un ratón. */
+  width: 22px;
+  height: 22px;
+  margin: 2px 0 0;
+  flex: none;
+}
+
+button {
+  font: inherit;
+  color: var(--texto);
+  background: var(--superficie-alta);
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+  padding: 13px 16px;
+  /* 44 px es el mínimo razonable para un toque con prisa. */
+  min-height: 46px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+button.primary {
+  width: 100%;
+  background: var(--acento);
+  color: #10231d;
+  border-color: var(--acento);
+  font-weight: 650;
+}
+
+button.danger {
+  border-color: var(--evacuar);
+  color: var(--evacuar);
+  background: transparent;
+}
+
+#notice {
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+#notice:not(:empty) {
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--superficie-alta);
+  border: 1px solid var(--borde);
+}
+
+#notice.error:not(:empty) {
+  border-color: var(--evacuar);
+  color: var(--evacuar);
+}
+
+/* Barra de pestañas fija abajo: alcanzable con el pulgar en un teléfono. */
+nav.tabs {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--superficie);
+  border-top: 1px solid var(--borde);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 6;
+}
+
+nav.tabs button {
+  flex: 1;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--texto-suave);
+  font-size: 0.72rem;
+  padding: 10px 2px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+nav.tabs button[aria-current='page'] {
+  color: var(--acento);
+  box-shadow: inset 0 2px 0 var(--acento);
+}
+
+nav.tabs .glyph {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Un aviso: el nivel se reconoce por la palabra y por la banda lateral. */
+.aviso {
+  border-left: 5px solid var(--info);
+  padding-left: 12px;
+  margin: 0 0 14px;
+}
+
+.aviso[data-nivel='evacuate'] {
+  border-left-color: var(--evacuar);
+}
+
+.aviso[data-nivel='prepare'] {
+  border-left-color: var(--preparar);
+}
+
+.nivel {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.aviso[data-nivel='evacuate'] .nivel {
+  color: var(--evacuar);
+}
+
+.aviso[data-nivel='prepare'] .nivel {
+  color: var(--preparar);
+}
+
+.aviso[data-nivel='info'] .nivel {
+  color: var(--info);
+}
+
+/* Un destino recomendado y, debajo, lo descartado con su motivo. */
+.destino {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.destino:last-child {
+  border-bottom: 0;
+}
+
+.destino .dist {
+  font-weight: 700;
+  color: var(--acento);
+  white-space: nowrap;
+}
+
+.descartado {
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--borde);
+}
+
+.descartado b {
+  color: var(--evacuar);
+  font-weight: 600;
+}
+
+/* Pasos de una lección, agrupados por fase. */
+.fase {
+  margin: 14px 0 0;
+}
+
+.fase h4 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--acento);
+}
+
+.fase ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.fase li {
+  margin-bottom: 7px;
+}
+
+.fuentes {
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+}
+
+.offline {
+  display: inline-block;
+  font-size: 0.72rem;
+  background: var(--superficie-alta);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: var(--texto-suave);
+}
+
+.lugar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.lugar:last-of-type {
+  border-bottom: 0;
+}
+
+.lugar strong {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button {
+    transition: opacity 0.15s ease;
+  }
+}
+
+/* Respeta el contraste alto del sistema sin perder la distinción de niveles. */
+@media (prefers-contrast: more) {
+  :root {
+    --texto-suave: #e2ece6;
+    --borde: #5f9c89;
+  }
+}
+
+/* El texto legal se muestra con su propio salto de línea, sin tipografía de
+ * monoespacio: es prosa, no código. */
+#terms-body {
+  white-space: pre-wrap;
+  font: inherit;
+  max-height: 40vh;
+  overflow: auto;
+  margin: 0 0 12px;
+}
+
+/* Video propio, reproducido dentro de la aplicación. */
+.video {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: #000;
+}
+
+.video-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--acento);
+}
+
+details summary {
+  cursor: pointer;
+  margin-top: 12px;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}

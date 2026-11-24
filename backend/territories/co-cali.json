@@ -1,0 +1,18 @@
+{
+  "id": "co-cali",
+  "country_code": "CO",
+  "admin1": "Valle del Cauca",
+  "name": "Cali",
+  "timezone": "America/Bogota",
+  "locale": "es-CO",
+  "layers": {
+    "flood": true,
+    "seismic_microzonation": true,
+    "liquefaction": true
+  },
+  "sources": {
+    "spaces": "../frontend/dist/data/spaces.json",
+    "neighborhoods": "../frontend/dist/data/neighborhoods.json",
+    "communes": "../frontend/dist/data/communes.json"
+  }
+}

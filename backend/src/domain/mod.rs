@@ -21,6 +21,8 @@ pub fn routes() -> Router<AppState> {
         .merge(shelters::routes())
         .nest("/admin", admin::routes())
         .route("/dashboard", get(dashboard))
+        .route("/territories", get(territories))
+        .route("/sectors", get(sectors))
         .route("/jobs", get(crate::ai::list).post(crate::ai::enqueue))
         .route("/jobs/{id}/retry", post(crate::ai::retry))
 }
@@ -53,6 +55,50 @@ fn text(value: &str, max: usize) -> Result<&str> {
     } else {
         Ok(v)
     }
+}
+#[derive(Deserialize)]
+pub struct SectorQuery {
+    territory: String,
+    /// `neighborhood` o `commune`.
+    kind: String,
+}
+
+/// Sectores de un territorio, para que una afiliación se pueda elegir de una
+/// lista en lugar de escribir coordenadas a mano.
+async fn sectors(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    axum::extract::Query(q): axum::extract::Query<SectorQuery>,
+) -> Result<Json<Value>> {
+    auth::actor(&state, &headers).await?;
+    if !crate::territory::Territory::valid_id(&q.territory) {
+        return Err(error::bad("Identificador de territorio inválido"));
+    }
+    let kind = match q.kind.as_str() {
+        "neighborhood" => crate::sectors::Kind::Neighborhood,
+        "commune" => crate::sectors::Kind::Commune,
+        _ => {
+            return Err(error::bad(
+                "El tipo de sector debe ser neighborhood o commune",
+            ));
+        }
+    };
+    Ok(Json(json!({
+        "items": crate::sectors::list(&state.db, &q.territory, kind).await?,
+    })))
+}
+/// Territorios cargados y su nivel de cobertura de datos.
+///
+/// Vive aquí y no en `planning` porque el motor de alertas también necesita saber
+/// qué capas de amenaza existen antes de recomendar un destino.
+async fn territories(State(state): State<AppState>, headers: HeaderMap) -> Result<Json<Value>> {
+    auth::actor(&state, &headers).await?;
+    let items: Vec<Value> = crate::territory::list(&state.db)
+        .await?
+        .iter()
+        .map(crate::territory::Territory::summary)
+        .collect();
+    Ok(Json(json!({"items": items})))
 }
 async fn dashboard(State(state): State<AppState>, headers: HeaderMap) -> Result<Json<Value>> {
     let a = auth::actor(&state, &headers).await?;

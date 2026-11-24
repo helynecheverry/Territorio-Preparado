@@ -245,7 +245,8 @@ mod tests {
     fn fixture() -> (Space, PlanInput) {
         (
             Space {
-                id: "test".into(),
+                id: "co-test:test".into(),
+                territory_id: "co-test".into(),
                 properties: json!({"name":"Test","areaM2":10000,"flood":[],"seismic":[]}),
                 shape: rectangle(0., 0., 100., 100.),
                 measurable: true,
